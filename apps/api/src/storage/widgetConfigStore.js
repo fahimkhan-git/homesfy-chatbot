@@ -45,7 +45,10 @@ const ALLOWED_FIELDS = [
 
 function sanitizeUpdate(update = {}) {
   return ALLOWED_FIELDS.reduce((acc, field) => {
-    if (Object.prototype.hasOwnProperty.call(update, field)) {
+    if (
+      Object.prototype.hasOwnProperty.call(update, field) &&
+      update[field] !== undefined
+    ) {
       acc[field] = update[field];
     }
     return acc;
@@ -99,24 +102,16 @@ export async function upsertWidgetConfig(projectId, update) {
   const sanitizedUpdate = sanitizeUpdate(update);
 
   if (useMongo) {
-    const updated = await WidgetConfig.findOneAndUpdate(
-      { projectId },
-      {
-        $set: { ...sanitizedUpdate },
-        $setOnInsert: { projectId },
-      },
-      {
-        new: true,
-        upsert: true,
-        lean: true,
-        setDefaultsOnInsert: true,
-      }
-    );
+    let doc = await WidgetConfig.findOne({ projectId });
 
-    return {
-      ...updated,
-      id: updated._id.toString(),
-    };
+    if (!doc) {
+      doc = new WidgetConfig({ projectId, ...DEFAULT_THEME });
+    }
+
+    Object.assign(doc, sanitizedUpdate, { projectId });
+    await doc.save();
+
+    return toPlainObject(doc);
   }
 
   const store = await loadStore();

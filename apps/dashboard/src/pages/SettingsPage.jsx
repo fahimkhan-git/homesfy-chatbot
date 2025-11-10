@@ -73,7 +73,7 @@ export function SettingsPage() {
           <input
             value={formState.agentName || ""}
             onChange={handleChange("agentName")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -84,7 +84,7 @@ export function SettingsPage() {
           <input
             value={formState.avatarUrl || ""}
             onChange={handleChange("avatarUrl")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -110,7 +110,7 @@ export function SettingsPage() {
             step={500}
             value={formState.autoOpenDelayMs || 4000}
             onChange={handleChange("autoOpenDelayMs")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -122,7 +122,7 @@ export function SettingsPage() {
             rows={3}
             value={formState.welcomeMessage || ""}
             onChange={handleChange("welcomeMessage")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -134,7 +134,7 @@ export function SettingsPage() {
             rows={2}
             value={formState.followupMessage || ""}
             onChange={handleChange("followupMessage")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -146,7 +146,7 @@ export function SettingsPage() {
             rows={2}
             value={formState.phonePrompt || ""}
             onChange={handleChange("phonePrompt")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -158,7 +158,7 @@ export function SettingsPage() {
             rows={2}
             value={formState.thankYouMessage || ""}
             onChange={handleChange("thankYouMessage")}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
