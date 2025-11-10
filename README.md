@@ -115,8 +115,11 @@ npm --prefix apps/api run lint   # if a linter is introduced
 
 ### Widget
 
-1. Run `npm run build:widget`. The production bundle drops into `apps/widget/dist/`.
-2. Publish `widget.js` (and the sourcemap if desired) to a CDN or Vercel static project.
+1. The repo includes `vercel.json` so Vercel automatically runs `npm run build:widget`
+   and serves `apps/widget/dist` for production deployments. Simply push to the
+   production branch and the latest `widget.js` will be published at your Vercel domain.
+2. To build locally or for other CDNs, run `npm run build:widget`; the production
+   bundle drops into `apps/widget/dist/`.
 3. Embed the snippet:
    ```html
    <script
