@@ -790,7 +790,9 @@ export function ChatWidget({
 
   return (
     <div
-      className={`homesfy-widget homesfy-widget__${resolvedTheme.bubblePosition}`}
+      className={`homesfy-widget homesfy-widget__${resolvedTheme.bubblePosition} ${
+        isOpen ? "homesfy-widget--open" : ""
+      }`}
       style={{
         "--homesfy-primary": resolvedTheme.primaryColor,
         "--homesfy-primary-rgb": primaryRgb,

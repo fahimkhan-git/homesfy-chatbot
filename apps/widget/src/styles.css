@@ -247,10 +247,12 @@
 }
 
 .homesfy-widget__messages {
-  padding: 20px 20px 12px;
+  padding: 18px 20px 8px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1;
+  min-height: 0;
   max-height: 280px;
   overflow-y: auto;
   background: #ffffff;
@@ -364,7 +366,7 @@
 }
 
 .homesfy-widget__input {
-  padding: 18px 20px 20px;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
@@ -600,7 +602,67 @@
   opacity: 1;
 }
 
+@media (max-width: 960px) {
+  .homesfy-widget {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+  }
+
+  .homesfy-widget__window {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .homesfy-widget__header {
+    border-radius: 0;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 18px 16px;
+  }
+
+  .homesfy-widget__messages {
+    flex: 0 1 auto;
+    max-height: calc(100dvh - 320px);
+  }
+
+  .homesfy-widget__input {
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+    flex: 1 1 auto;
+  }
+
+  .homesfy-widget__form {
+    margin-top: auto;
+  }
+
+  .homesfy-widget--open .homesfy-widget__bubble-button {
+    display: none;
+  }
+
+  .homesfy-widget__cta-grid {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 16px 0 auto;
+    justify-items: end;
+  }
+
+  .homesfy-widget__cta-button {
+    width: auto;
+    min-width: 220px;
+    text-align: right;
+  }
+}
+
 @media (max-width: 640px) {
+  .homesfy-widget__window {
+    width: 100vw;
+  }
+
   .homesfy-widget__bubble-button {
     width: 64px;
     height: 64px;
