@@ -345,7 +345,7 @@ export function ChatWidget({
   theme = {},
   onEvent,
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [selectedCta, setSelectedCta] = useState(null);
@@ -355,6 +355,7 @@ export function ChatWidget({
   const [visitorContext, setVisitorContext] = useState({});
   const messagesEndRef = useRef(null);
   const hasShownRef = useRef(false);
+  const autoOpenTimeoutRef = useRef(null);
   const [manualInput, setManualInput] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRY);
 
@@ -479,15 +480,52 @@ export function ChatWidget({
     ]);
   }
 
-  useEffect(() => {
-    if (hasShownRef.current) {
-      return;
+  const openChatOnce = () => {
+    if (autoOpenTimeoutRef.current) {
+      clearTimeout(autoOpenTimeoutRef.current);
+      autoOpenTimeoutRef.current = null;
     }
 
-    hasShownRef.current = true;
     setIsOpen(true);
-    pushSystemMessage(resolvedTheme.welcomeMessage);
-    trackEvent("chat_shown");
+
+    if (!hasShownRef.current) {
+      hasShownRef.current = true;
+      pushSystemMessage(resolvedTheme.welcomeMessage);
+      trackEvent("chat_shown");
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    if (autoOpenTimeoutRef.current) {
+      clearTimeout(autoOpenTimeoutRef.current);
+      autoOpenTimeoutRef.current = null;
+    }
+
+    if (hasShownRef.current) {
+      return undefined;
+    }
+
+    const delay = Math.max(0, resolvedTheme.autoOpenDelayMs || 0);
+
+    if (delay === 0) {
+      openChatOnce();
+      return undefined;
+    }
+
+    autoOpenTimeoutRef.current = window.setTimeout(() => {
+      openChatOnce();
+    }, delay);
+
+    return () => {
+      if (autoOpenTimeoutRef.current) {
+        clearTimeout(autoOpenTimeoutRef.current);
+        autoOpenTimeoutRef.current = null;
+      }
+    };
   }, [resolvedTheme]);
 
   useEffect(() => {
@@ -566,10 +604,12 @@ export function ChatWidget({
   }, [messages, isTyping]);
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
-    if (!isOpen && messages.length === 0) {
-      pushSystemMessage(resolvedTheme.welcomeMessage);
+    if (isOpen) {
+      setIsOpen(false);
+      return;
     }
+
+    openChatOnce();
   };
 
   const handleCtaSelect = (cta) => {
