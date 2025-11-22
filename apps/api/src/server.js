@@ -187,6 +187,8 @@ async function bootstrap() {
     }
   });
 
+  // Register routes BEFORE bootstrap completes
+  // This ensures routes are available immediately for Vercel serverless functions
   app.get("/health", async (_req, res) => {
     const aiAvailable = process.env.GEMINI_API_KEY && 
                          process.env.GEMINI_API_KEY !== 'your-gemini-api-key-here' && 
