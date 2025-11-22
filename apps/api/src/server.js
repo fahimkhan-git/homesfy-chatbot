@@ -192,11 +192,10 @@ async function bootstrap() {
   // Request size limits already set above (before bootstrap)
   // CORS already configured above (before routes)
   // Rate limiting already configured above (before routes)
+  // io middleware already configured above (before routes)
 
-  app.use((req, res, next) => {
-    req.io = io;
-    next();
-  });
+  // Update io reference in middleware (io is now available)
+  // The middleware above will use the updated io
 
   io.on("connection", (socket) => {
     const { microsite } = socket.handshake.query;
