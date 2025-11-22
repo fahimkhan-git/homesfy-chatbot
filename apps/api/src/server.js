@@ -120,7 +120,7 @@ async function bootstrap() {
 
   // Request size limits already set above (before bootstrap)
 
-  // CORS Configuration - Always allow localhost for development
+  // CORS Configuration - Always allow localhost and common production domains
   const corsOptions = {
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
@@ -130,6 +130,11 @@ async function bootstrap() {
       
       // Always allow localhost and 127.0.0.1 on any port for development
       if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+        return callback(null, true);
+      }
+      
+      // Always allow homeesfytestwebsite.com and its subdomains
+      if (origin.includes("homeesfytestwebsite.com")) {
         return callback(null, true);
       }
       
