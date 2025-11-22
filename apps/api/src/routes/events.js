@@ -1,12 +1,15 @@
 import express from "express";
 import { getEventSummary, recordEvent } from "../storage/eventStore.js";
+import { apiLimiter } from "../middleware/rateLimiter.js";
+import { validateEvent } from "../middleware/validation.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", apiLimiter, validateEvent, async (req, res) => {
   try {
     const { type, projectId, microsite, payload } = req.body;
 
+    // Validation already handled by validateEvent middleware
     if (!type || !projectId) {
       return res.status(400).json({ message: "type and projectId required" });
     }
@@ -19,7 +22,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (_req, res) => {
+router.get("/", apiLimiter, async (_req, res) => {
   try {
     const summary = await getEventSummary();
 

@@ -3,6 +3,8 @@ import { createLead, listLeads } from "../storage/leadStore.js";
 import { recordEvent } from "../storage/eventStore.js";
 import { createChatSession } from "../storage/chatSessionStore.js";
 import { normalizePhone } from "../utils/phoneValidation.js";
+import { leadLimiter } from "../middleware/rateLimiter.js";
+import { validateLead } from "../middleware/validation.js";
 
 const router = express.Router();
 
@@ -66,10 +68,12 @@ function normalizeBhkPreference({ bhk, bhkType }) {
   return null;
 }
 
-router.post("/", async (req, res) => {
+// Apply rate limiting and validation to lead submission
+router.post("/", leadLimiter, validateLead, async (req, res) => {
   try {
     const { phone, bhk, bhkType, microsite, metadata, conversation } = req.body;
 
+    // Validation already handled by validateLead middleware
     if (!microsite) {
       return res.status(400).json({ message: "Missing required fields" });
     }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homesfy Chat Widget - Test Embed Script</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+        .script-box {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .script-box code {
+            color: #10b981;
+        }
+        .instructions {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #92400e;
+        }
+        .instructions ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 4px 0;
+            color: #78350f;
+        }
+        .note {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+        .note strong {
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Homesfy Chat Widget - Embed Script</h1>
+        <p class="subtitle">Copy and paste this script into your live microsite to test the AI-powered chat widget</p>
+
+        <div class="instructions">
+            <h3>📋 How to Use:</h3>
+            <ul>
+                <li>Copy the script below</li>
+                <li>Paste it just before the closing <code>&lt;/body&gt;</code> tag on your microsite</li>
+                <li>Replace <code>YOUR_PROJECT_ID</code> with your actual project ID (e.g., 5796, lodha-park, etc.)</li>
+                <li>Replace <code>YOUR_MICROSITE_NAME</code> with your microsite identifier</li>
+                <li>The chat will auto-open after a few seconds</li>
+            </ul>
+        </div>
+
+        <h2>Option 1: Production (Vercel Deployed)</h2>
+        <div class="script-box">
+<pre><code>&lt;!-- Homesfy Chat Widget with AI --&gt;
+&lt;script
+  src="https://widget-eight-ebon-chi.vercel.app/widget.js"
+  data-project="YOUR_PROJECT_ID"
+  data-api-base-url="https://api-alpha-ten-43.vercel.app"
+  data-microsite="YOUR_MICROSITE_NAME"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+&gt;&lt;/script&gt;</code></pre>
+        </div>
+
+        <h2>Option 2: Local Testing</h2>
+        <div class="script-box">
+<pre><code>&lt;!-- Homesfy Chat Widget - Local Testing --&gt;
+&lt;script
+  src="http://127.0.0.1:5001/widget.js"
+  data-project="YOUR_PROJECT_ID"
+  data-api-base-url="http://localhost:4000"
+  data-microsite="local-test"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+&gt;&lt;/script&gt;</code></pre>
+        </div>
+
+        <div class="note">
+            <strong>💡 Quick Test Example:</strong><br>
+            For testing with project ID "5796" and microsite "lodha-park", use:
+            <div class="script-box" style="margin-top: 12px; font-size: 13px;">
+<pre><code>&lt;script
+  src="https://widget-eight-ebon-chi.vercel.app/widget.js"
+  data-project="5796"
+  data-api-base-url="https://api-alpha-ten-43.vercel.app"
+  data-microsite="lodha-park"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+&gt;&lt;/script&gt;</code></pre>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>⚙️ Configuration Attributes:</h3>
+            <ul>
+                <li><strong>data-project</strong>: Your project ID (matches widget config in dashboard)</li>
+                <li><strong>data-api-base-url</strong>: Your API server URL</li>
+                <li><strong>data-microsite</strong>: Unique identifier for this microsite</li>
+                <li><strong>async</strong>: Loads widget without blocking page</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <strong>🤖 AI Features:</strong><br>
+            The widget now includes AI-powered conversations! Make sure to:
+            <ul style="margin-top: 8px;">
+                <li>Configure property information in the dashboard Settings page</li>
+                <li>Add GEMINI_API_KEY to your API environment variables</li>
+                <li>AI will answer questions based on your microsite's property details</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

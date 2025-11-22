@@ -28,6 +28,41 @@ export function SettingsPage() {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  const handlePropertyInfoChange = (field) => (event) => {
+    setFormState((prev) => ({
+      ...prev,
+      propertyInfo: {
+        ...(prev.propertyInfo || {}),
+        [field]: event.target.value,
+      },
+    }));
+  };
+
+  const handleArrayChange = (parentField, field) => (event) => {
+    const value = event.target.value;
+    const array = value.split(",").map(item => item.trim()).filter(Boolean);
+    setFormState((prev) => ({
+      ...prev,
+      [parentField]: {
+        ...(prev[parentField] || {}),
+        [field]: array,
+      },
+    }));
+  };
+
+  const handlePricingChange = (bhk) => (event) => {
+    setFormState((prev) => ({
+      ...prev,
+      propertyInfo: {
+        ...(prev.propertyInfo || {}),
+        pricing: {
+          ...(prev.propertyInfo?.pricing || {}),
+          [bhk]: event.target.value,
+        },
+      },
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatus("saving");
@@ -184,6 +219,154 @@ export function SettingsPage() {
             onChange={handleChange("thankYouMessage")}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
           />
+        </div>
+
+        {/* Property Information Section for AI */}
+        <div className="md:col-span-2 border-t border-slate-200 pt-6 mt-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            Property Information (for AI Conversations)
+          </h3>
+          <p className="text-sm text-slate-500 mb-6">
+            Add property details so the AI can answer questions accurately about this microsite.
+          </p>
+          
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Project Name
+              </label>
+              <input
+                value={formState.propertyInfo?.projectName || ""}
+                onChange={handlePropertyInfoChange("projectName")}
+                placeholder="e.g., Lodha Park"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Developer
+              </label>
+              <input
+                value={formState.propertyInfo?.developer || ""}
+                onChange={handlePropertyInfoChange("developer")}
+                placeholder="e.g., Lodha"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700">
+                Location
+              </label>
+              <input
+                value={formState.propertyInfo?.location || ""}
+                onChange={handlePropertyInfoChange("location")}
+                placeholder="e.g., Andheri West, Mumbai"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700">
+                Available BHK (comma-separated)
+              </label>
+              <input
+                value={Array.isArray(formState.propertyInfo?.availableBhk) 
+                  ? formState.propertyInfo.availableBhk.join(", ")
+                  : formState.propertyInfo?.availableBhk || ""}
+                onChange={handleArrayChange("propertyInfo", "availableBhk")}
+                placeholder="e.g., 2 BHK, 3 BHK, 4 BHK"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                2 BHK Price
+              </label>
+              <input
+                value={formState.propertyInfo?.pricing?.["2 BHK"] || formState.propertyInfo?.pricing?.["2 Bhk"] || ""}
+                onChange={handlePricingChange("2 BHK")}
+                placeholder="e.g., ₹1.5 Cr"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                3 BHK Price
+              </label>
+              <input
+                value={formState.propertyInfo?.pricing?.["3 BHK"] || formState.propertyInfo?.pricing?.["3 Bhk"] || ""}
+                onChange={handlePricingChange("3 BHK")}
+                placeholder="e.g., ₹2.2 Cr"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                4 BHK Price
+              </label>
+              <input
+                value={formState.propertyInfo?.pricing?.["4 BHK"] || formState.propertyInfo?.pricing?.["4 Bhk"] || ""}
+                onChange={handlePricingChange("4 BHK")}
+                placeholder="e.g., ₹3.5 Cr"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Area
+              </label>
+              <input
+                value={formState.propertyInfo?.area || ""}
+                onChange={handlePropertyInfoChange("area")}
+                placeholder="e.g., 1200-1800 sq ft"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700">
+                Amenities (comma-separated)
+              </label>
+              <input
+                value={Array.isArray(formState.propertyInfo?.amenities) 
+                  ? formState.propertyInfo.amenities.join(", ")
+                  : formState.propertyInfo?.amenities || ""}
+                onChange={handleArrayChange("propertyInfo", "amenities")}
+                placeholder="e.g., Clubhouse, Gym, Pool, Landscaped Gardens"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Possession
+              </label>
+              <input
+                value={formState.propertyInfo?.possession || ""}
+                onChange={handlePropertyInfoChange("possession")}
+                placeholder="e.g., Ready to Move"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Special Offers
+              </label>
+              <input
+                value={formState.propertyInfo?.specialOffers || ""}
+                onChange={handlePropertyInfoChange("specialOffers")}
+                placeholder="e.g., 10% discount on booking"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="md:col-span-2 flex items-center justify-between pt-4">

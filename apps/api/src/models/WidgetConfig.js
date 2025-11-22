@@ -50,8 +50,25 @@ const widgetConfigSchema = new mongoose.Schema(
     },
     welcomeMessage: {
       type: String,
-      default: "Hi, I’m Riya from Homesfy 👋\nHow can I help you today?",
+      default: "Hi, I'm Riya from Homesfy 👋\nHow can I help you today?",
     },
+    // Property information for AI-powered conversations
+    propertyInfo: {
+      projectName: { type: String },
+      developer: { type: String },
+      location: { type: String },
+      availableBhk: [{ type: String }],
+      pricing: {
+        type: Map,
+        of: String,
+      },
+      amenities: [{ type: String }],
+      area: { type: String },
+      possession: { type: String },
+      specialOffers: { type: String },
+    },
+    // Domain mapping - allows multiple domains to map to same project
+    domains: [{ type: String }],
     createdBy: {
       type: String,
     },

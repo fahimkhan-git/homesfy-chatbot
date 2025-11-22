@@ -43,12 +43,13 @@ const ALLOWED_FIELDS = [
   "bubblePosition",
   "autoOpenDelayMs",
   "welcomeMessage",
+  "propertyInfo",
   "createdBy",
   "updatedBy",
 ];
 
 function sanitizeUpdate(update = {}) {
-  return ALLOWED_FIELDS.reduce((acc, field) => {
+  const sanitized = ALLOWED_FIELDS.reduce((acc, field) => {
     if (
       Object.prototype.hasOwnProperty.call(update, field) &&
       update[field] !== undefined
@@ -57,6 +58,14 @@ function sanitizeUpdate(update = {}) {
     }
     return acc;
   }, {});
+  
+  // Always include propertyInfo if present, even if not in ALLOWED_FIELDS
+  // This allows for nested object updates
+  if (update.propertyInfo && typeof update.propertyInfo === "object") {
+    sanitized.propertyInfo = update.propertyInfo;
+  }
+  
+  return sanitized;
 }
 
 export async function getWidgetConfig(projectId) {

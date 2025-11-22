@@ -2,12 +2,16 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import mongoose from "mongoose";
+import helmet from "helmet";
 import { Server as SocketIOServer } from "socket.io";
 import { config } from "./config.js";
 import leadsRouter from "./routes/leads.js";
 import widgetConfigRouter from "./routes/widgetConfig.js";
 import eventsRouter from "./routes/events.js";
 import chatSessionsRouter from "./routes/chatSessions.js";
+import chatRouter from "./routes/chat.js";
+import { apiLimiter } from "./middleware/rateLimiter.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 function expandAllowedOrigins(origins) {
   const expanded = new Set(origins);
@@ -39,7 +43,22 @@ function expandAllowedOrigins(origins) {
 
 async function bootstrap() {
   if (config.dataStore === "mongo") {
-    await mongoose.connect(config.mongoUri);
+    try {
+      await mongoose.connect(config.mongoUri, {
+        maxPoolSize: 10, // Maintain up to 10 socket connections
+        serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+        socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      });
+      console.log("✅ Connected to MongoDB successfully");
+    } catch (error) {
+      console.error("❌ MongoDB connection error:", error.message);
+      if (process.env.VERCEL) {
+        // On Vercel, fail fast if MongoDB is required
+        throw new Error("MongoDB connection failed. MONGO_URI is required on Vercel.");
+      } else {
+        console.warn("⚠️  Falling back to file datastore for local development.");
+      }
+    }
   } else {
     console.log("Using local JSON datastore. Mongo connection skipped.");
   }
@@ -57,7 +76,28 @@ async function bootstrap() {
     },
   });
 
-  app.use(express.json());
+  // Security Headers - Helmet.js
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Allow inline scripts for widget
+          styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for widget
+          imgSrc: ["'self'", "data:", "https:"], // Allow images from any HTTPS source
+          connectSrc: ["'self'", "https:"], // Allow API calls to any HTTPS endpoint
+          fontSrc: ["'self'", "data:", "https:"],
+        },
+      },
+      crossOriginEmbedderPolicy: false, // Disable for widget compatibility
+    })
+  );
+
+  // Request size limits - prevent DoS attacks
+  app.use(express.json({ limit: "10mb" })); // Max 10MB JSON payload
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  // CORS Configuration
   const corsOptions = expandedOrigins.includes("*")
     ? {
         origin: (_origin, callback) => {
@@ -72,6 +112,9 @@ async function bootstrap() {
 
   app.use(cors(corsOptions));
   app.options("*", cors(corsOptions));
+
+  // Global rate limiting - applies to all routes
+  app.use("/api", apiLimiter);
 
   app.use((req, res, next) => {
     req.io = io;
@@ -97,14 +140,48 @@ async function bootstrap() {
     }
   });
 
-  app.get("/health", (_req, res) => {
-    res.json({ status: "ok" });
+  app.get("/health", async (_req, res) => {
+    const aiAvailable = process.env.GEMINI_API_KEY && 
+                         process.env.GEMINI_API_KEY !== 'your-gemini-api-key-here' && 
+                         process.env.GEMINI_API_KEY.trim();
+    res.json({ 
+      status: "ok",
+      ai: {
+        available: !!aiAvailable,
+        model: aiAvailable ? "gemini-2.5-flash" : null,
+        mode: aiAvailable ? "full-ai" : "fallback-keyword-matching"
+      }
+    });
   });
 
   app.use("/api/leads", leadsRouter);
   app.use("/api/widget-config", widgetConfigRouter);
   app.use("/api/events", eventsRouter);
   app.use("/api/chat-sessions", chatSessionsRouter);
+  app.use("/api/chat", chatRouter);
+
+  // Global error handler - must be last
+  app.use(errorHandler);
+
+  // Check Gemini AI availability on startup
+  const checkAIAvailability = async () => {
+    try {
+      if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your-gemini-api-key-here' && process.env.GEMINI_API_KEY.trim()) {
+        const { GoogleGenerativeAI } = await import("@google/generative-ai");
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        console.log("✅ Gemini AI (gemini-2.5-flash) is configured and available");
+        console.log("   Chat API will use full AI capabilities with intent understanding");
+      } else {
+        console.warn("⚠️  GEMINI_API_KEY not set - Chat API will use fallback keyword matching");
+        console.warn("   To enable full AI: Set GEMINI_API_KEY in .env (get key from https://makersuite.google.com/app/apikey)");
+      }
+    } catch (error) {
+      console.warn("⚠️  Could not verify Gemini AI availability:", error.message);
+    }
+  };
+  
+  checkAIAvailability();
 
   server.listen(config.port, () => {
     console.log(`API server listening on port ${config.port}`);

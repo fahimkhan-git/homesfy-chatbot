@@ -1,0 +1,55 @@
+========================================
+HOMESFY CHAT WIDGET - EMBED SCRIPT
+========================================
+
+Copy and paste this script just before </body> tag on your microsite.
+
+PRODUCTION (Vercel):
+-------------------
+<script
+  src="https://widget-eight-ebon-chi.vercel.app/widget.js"
+  data-project="YOUR_PROJECT_ID"
+  data-api-base-url="https://api-alpha-ten-43.vercel.app"
+  data-microsite="YOUR_MICROSITE_NAME"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+></script>
+
+LOCAL TESTING:
+-------------
+<script
+  src="http://127.0.0.1:5001/widget.js"
+  data-project="YOUR_PROJECT_ID"
+  data-api-base-url="http://localhost:4000"
+  data-microsite="local-test"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+></script>
+
+EXAMPLE (Project ID: 5796, Microsite: lodha-park):
+---------------------------------------------------
+<script
+  src="https://widget-eight-ebon-chi.vercel.app/widget.js"
+  data-project="5796"
+  data-api-base-url="https://api-alpha-ten-43.vercel.app"
+  data-microsite="lodha-park"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+></script>
+
+ATTRIBUTES:
+----------
+- data-project: Your project ID (e.g., 5796, lodha-park)
+- data-api-base-url: API server URL
+- data-microsite: Unique microsite identifier
+- async: Non-blocking load
+
+AI FEATURES:
+-----------
+✅ AI-powered natural conversations
+✅ Microsite-specific property information
+✅ Answers questions about pricing, BHK, amenities, location
+✅ Gently guides users toward lead submission
+✅ Full chat flow: CTA → BHK → Name → Phone → CRM
+
+Setup: Add GEMINI_API_KEY to API environment
