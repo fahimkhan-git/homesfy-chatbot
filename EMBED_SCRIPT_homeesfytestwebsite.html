@@ -1,0 +1,35 @@
+<!-- 
+  Homesfy Chat Widget - Embed Script for homeesfytestwebsite.com
+  Project: Nivasa Enchante
+  
+  Instructions:
+  1. Replace YOUR_WIDGET_URL with your actual widget deployment URL (e.g., https://widget-eight-ebon-chi.vercel.app)
+  2. Replace YOUR_API_URL with your actual API deployment URL (e.g., https://api-alpha-ten-43.vercel.app)
+  3. Optionally add data-project="YOUR_PROJECT_ID" if you have a specific project ID
+  4. Paste this script just before the closing </body> tag on your website
+-->
+
+<!-- Option 1: Auto-Detect Project ID (Recommended) -->
+<!-- The widget will automatically detect the project based on the domain -->
+<script
+  src="YOUR_WIDGET_URL/widget.js"
+  data-api-base-url="YOUR_API_URL"
+  data-microsite="homeesfytestwebsite.com"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+></script>
+
+<!-- 
+  Option 2: Manual Project ID (If you have a specific project ID)
+  Uncomment and use this if you want to specify a project ID manually:
+  
+<script
+  src="YOUR_WIDGET_URL/widget.js"
+  data-project="YOUR_PROJECT_ID"
+  data-api-base-url="YOUR_API_URL"
+  data-microsite="homeesfytestwebsite.com"
+  async
+  onload="window.HomesfyChat && window.HomesfyChat.init && window.HomesfyChat.init({ element: this });"
+></script>
+-->
+
