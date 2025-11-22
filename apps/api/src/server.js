@@ -18,6 +18,16 @@ function expandAllowedOrigins(origins) {
 
   origins.forEach((origin) => {
     try {
+      // Handle wildcard patterns like "http://localhost:*"
+      if (origin.includes("*")) {
+        const base = origin.replace("*", "");
+        // Add common development ports
+        [3000, 5173, 5501, 5000, 5001, 8080, 8081].forEach(port => {
+          expanded.add(`${base}${port}`);
+        });
+        return;
+      }
+
       const url = new URL(origin);
 
       if (!url.protocol || !url.hostname) {
@@ -26,15 +36,21 @@ function expandAllowedOrigins(origins) {
 
       const portSegment = url.port ? `:${url.port}` : "";
 
-      if (url.hostname === "localhost") {
-        expanded.add(`${url.protocol}//127.0.0.1${portSegment}`);
-      }
-
-      if (url.hostname === "127.0.0.1") {
+      // Always add both localhost and 127.0.0.1 variants
+      if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
         expanded.add(`${url.protocol}//localhost${portSegment}`);
+        expanded.add(`${url.protocol}//127.0.0.1${portSegment}`);
+      } else {
+        expanded.add(origin);
       }
     } catch {
-      // Ignore entries that are not valid URLs (e.g. "null")
+      // If it's not a URL, check if it's a special value
+      if (origin === "*") {
+        expanded.add("*");
+      } else {
+        // Try to add as-is (might be a valid origin pattern)
+        expanded.add(origin);
+      }
     }
   });
 

@@ -35,10 +35,14 @@ export const config = {
   mongoUri:
     (process.env.MONGO_URI && process.env.MONGO_URI.trim()) ||
     "mongodb://localhost:27017/homesfy_chat",
-  allowedOrigins: ((process.env.ALLOWED_ORIGINS || "*").trim())
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+  allowedOrigins: (() => {
+    const raw = process.env.ALLOWED_ORIGINS;
+    if (raw && raw.trim()) {
+      return raw.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    // Default: Allow all origins (includes localhost for development)
+    return ["*"];
+  })(),
   dataStore: resolvedDataStore,
 };
 
