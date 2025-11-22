@@ -188,26 +188,20 @@ async function bootstrap() {
   checkAIAvailability();
 }
 
-// Bootstrap the app
-bootstrap().catch((error) => {
-  console.error("Failed to bootstrap API app", error);
-  if (process.env.VERCEL) {
-    // On Vercel, exit if bootstrap fails
-    process.exit(1);
-  }
-});
-
-// For local development, start the HTTP server
-if (!process.env.VERCEL) {
-  bootstrap().then(() => {
+// Bootstrap the app (runs for both Vercel and local)
+bootstrap().then(() => {
+  // For local development, start the HTTP server
+  if (!process.env.VERCEL) {
     server.listen(config.port, () => {
       console.log(`API server listening on port ${config.port}`);
     });
-  }).catch((error) => {
-    console.error("Failed to start API server", error);
-    process.exit(1);
-  });
-}
+  } else {
+    console.log("✅ API app ready for Vercel serverless functions");
+  }
+}).catch((error) => {
+  console.error("Failed to bootstrap API app", error);
+  process.exit(1);
+});
 
 // Export app for Vercel serverless functions (ES module syntax)
 export default app;
