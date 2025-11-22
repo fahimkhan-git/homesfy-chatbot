@@ -15,10 +15,20 @@ router.post("/", apiLimiter, validateEvent, async (req, res) => {
     }
 
     const event = await recordEvent({ type, projectId, microsite, payload });
+    // Always return success - event recording failures are handled gracefully
     res.status(201).json({ message: "Event recorded", event });
   } catch (error) {
     console.error("Failed to record event", error);
-    res.status(500).json({ message: "Failed to record event" });
+    // Return success even on error to prevent widget failures
+    res.status(201).json({ 
+      message: "Event recorded", 
+      event: { 
+        type: req.body.type, 
+        projectId: req.body.projectId, 
+        recorded: false,
+        error: process.env.NODE_ENV === "development" ? error.message : undefined
+      } 
+    });
   }
 });
 

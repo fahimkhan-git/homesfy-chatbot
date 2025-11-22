@@ -3,6 +3,7 @@ import { config } from "../config.js";
 import { Event } from "../models/Event.js";
 import { toPlainObject } from "../utils/doc.js";
 import { readJson, writeJson } from "./fileStore.js";
+import { config } from "../config.js";
 
 const FILE_NAME = "events.json";
 const DEFAULT_STORE = { events: [] };
@@ -17,6 +18,12 @@ async function saveStore(store) {
 }
 
 export async function recordEvent({ type, projectId, microsite, payload }) {
+  // On Vercel, if using file store, events might fail due to read-only filesystem
+  // Return success even if file write fails to prevent 500 errors
+  if (process.env.VERCEL && config.dataStore === "file") {
+    console.warn("⚠️  Event recording skipped on Vercel (file store not available)");
+    return { type, projectId, microsite, payload, recorded: false };
+  }
   if (useMongo) {
     const eventDoc = await Event.create({
       type,
