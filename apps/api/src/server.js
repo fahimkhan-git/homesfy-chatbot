@@ -67,6 +67,43 @@ let io;
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Register routes IMMEDIATELY (before bootstrap)
+// This is critical for Vercel serverless functions - routes must be available synchronously
+app.get("/", (_req, res) => {
+  res.json({
+    status: "ok",
+    message:
+      "Homesfy API is running. See /health for a simple check or /api/widget-config/:projectId for widget config.",
+  });
+});
+
+app.get("/.well-known/appspecific/com.chrome.devtools.json", (_req, res) => {
+  res.type("application/json").send("{}");
+});
+
+app.get("/health", async (_req, res) => {
+  const aiAvailable = process.env.GEMINI_API_KEY && 
+                       process.env.GEMINI_API_KEY !== 'your-gemini-api-key-here' && 
+                       process.env.GEMINI_API_KEY.trim();
+  res.json({ 
+    status: "ok",
+    ai: {
+      available: !!aiAvailable,
+      model: aiAvailable ? "gemini-2.5-flash" : null,
+      mode: aiAvailable ? "full-ai" : "fallback-keyword-matching"
+    }
+  });
+});
+
+app.use("/api/leads", leadsRouter);
+app.use("/api/widget-config", widgetConfigRouter);
+app.use("/api/events", eventsRouter);
+app.use("/api/chat-sessions", chatSessionsRouter);
+app.use("/api/chat", chatRouter);
+
+// Global error handler - must be last
+app.use(errorHandler);
+
 async function bootstrap() {
   if (config.dataStore === "mongo") {
     try {
@@ -168,49 +205,12 @@ async function bootstrap() {
     next();
   });
 
-  app.get("/", (_req, res) => {
-    res.json({
-      status: "ok",
-      message:
-        "Homesfy API is running. See /health for a simple check or /api/widget-config/:projectId for widget config.",
-    });
-  });
-
-  app.get("/.well-known/appspecific/com.chrome.devtools.json", (_req, res) => {
-    res.type("application/json").send("{}");
-  });
-
   io.on("connection", (socket) => {
     const { microsite } = socket.handshake.query;
     if (microsite) {
       socket.join(microsite);
     }
   });
-
-  // Register routes BEFORE bootstrap completes
-  // This ensures routes are available immediately for Vercel serverless functions
-  app.get("/health", async (_req, res) => {
-    const aiAvailable = process.env.GEMINI_API_KEY && 
-                         process.env.GEMINI_API_KEY !== 'your-gemini-api-key-here' && 
-                         process.env.GEMINI_API_KEY.trim();
-    res.json({ 
-      status: "ok",
-      ai: {
-        available: !!aiAvailable,
-        model: aiAvailable ? "gemini-2.5-flash" : null,
-        mode: aiAvailable ? "full-ai" : "fallback-keyword-matching"
-      }
-    });
-  });
-
-  app.use("/api/leads", leadsRouter);
-  app.use("/api/widget-config", widgetConfigRouter);
-  app.use("/api/events", eventsRouter);
-  app.use("/api/chat-sessions", chatSessionsRouter);
-  app.use("/api/chat", chatRouter);
-
-  // Global error handler - must be last
-  app.use(errorHandler);
 
   // Check Gemini AI availability on startup
   const checkAIAvailability = async () => {
