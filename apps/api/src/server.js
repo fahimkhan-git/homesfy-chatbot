@@ -41,6 +41,11 @@ function expandAllowedOrigins(origins) {
   return Array.from(expanded);
 }
 
+// Create app instance (will be initialized in bootstrap)
+const app = express();
+let server;
+let io;
+
 async function bootstrap() {
   if (config.dataStore === "mongo") {
     try {
@@ -63,7 +68,6 @@ async function bootstrap() {
     console.log("Using local JSON datastore. Mongo connection skipped.");
   }
 
-  const app = express();
   const expandedOrigins = config.allowedOrigins.includes("*")
     ? ["*"]
     : expandAllowedOrigins(config.allowedOrigins);
@@ -182,32 +186,29 @@ async function bootstrap() {
   };
   
   checkAIAvailability();
+}
 
-  // For Vercel serverless functions, export the app instead of starting a server
+// Bootstrap the app
+bootstrap().catch((error) => {
+  console.error("Failed to bootstrap API app", error);
   if (process.env.VERCEL) {
-    // Export app for Vercel serverless functions
-    module.exports = app;
-  } else {
-    // For local development, start the server
+    // On Vercel, exit if bootstrap fails
+    process.exit(1);
+  }
+});
+
+// For local development, start the HTTP server
+if (!process.env.VERCEL) {
+  bootstrap().then(() => {
     server.listen(config.port, () => {
       console.log(`API server listening on port ${config.port}`);
     });
-  }
-}
-
-// Only bootstrap if not in Vercel environment (Vercel will import the app directly)
-if (!process.env.VERCEL) {
-  bootstrap().catch((error) => {
+  }).catch((error) => {
     console.error("Failed to start API server", error);
     process.exit(1);
   });
-} else {
-  // For Vercel, bootstrap and export app
-  bootstrap().then(() => {
-    console.log("✅ API app ready for Vercel serverless functions");
-  }).catch((error) => {
-    console.error("Failed to bootstrap API app", error);
-    process.exit(1);
-  });
 }
+
+// Export app for Vercel serverless functions (ES module syntax)
+export default app;
 
