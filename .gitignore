@@ -6,3 +6,16 @@ dist
 
 
 .vercel
+
+# Local test data and files
+apps/api/data/*.json
+!apps/api/data/.gitkeep
+local-microsite/
+*.tmp
+*.bak
+.vscode/
+test-*.html
+test-*.sh
+*_STATUS.txt
+*_SUMMARY.txt
+*_FOR_DASHBOARD.json
