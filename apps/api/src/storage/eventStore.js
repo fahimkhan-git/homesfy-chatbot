@@ -3,7 +3,6 @@ import { config } from "../config.js";
 import { Event } from "../models/Event.js";
 import { toPlainObject } from "../utils/doc.js";
 import { readJson, writeJson } from "./fileStore.js";
-import { config } from "../config.js";
 
 const FILE_NAME = "events.json";
 const DEFAULT_STORE = { events: [] };
