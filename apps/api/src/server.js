@@ -117,18 +117,37 @@ async function bootstrap() {
   app.use(express.json({ limit: "10mb" })); // Max 10MB JSON payload
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-  // CORS Configuration
-  const corsOptions = expandedOrigins.includes("*")
-    ? {
-        origin: (_origin, callback) => {
-          callback(null, true);
-        },
-        credentials: true,
+  // CORS Configuration - Always allow localhost for development
+  const corsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) {
+        return callback(null, true);
       }
-    : {
-        origin: expandedOrigins,
-        credentials: true,
-      };
+      
+      // Always allow localhost and 127.0.0.1 on any port for development
+      if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+        return callback(null, true);
+      }
+      
+      // If "*" is in allowed origins, allow all
+      if (expandedOrigins.includes("*")) {
+        return callback(null, true);
+      }
+      
+      // Check if origin is in allowed list
+      if (expandedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      // Default: reject
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Content-Length", "Content-Type"],
+  };
 
   app.use(cors(corsOptions));
   app.options("*", cors(corsOptions));
@@ -204,24 +223,26 @@ async function bootstrap() {
   checkAIAvailability();
 }
 
-// For Vercel, we need to bootstrap before exporting
-// For local, bootstrap and start server
-if (process.env.VERCEL) {
-  // Vercel: Bootstrap async, export app immediately
-  // The bootstrap will complete before first request
-  bootstrap().catch((error) => {
-    console.error("Failed to bootstrap API app", error);
-    // Don't exit in Vercel - let it handle the error
-  });
-} else {
-  // Local: Bootstrap and start server
-  bootstrap().then(() => {
+// Initialize app immediately for Vercel
+// Bootstrap will run asynchronously
+let isBootstrapped = false;
+const bootstrapPromise = bootstrap().then(() => {
+  isBootstrapped = true;
+  console.log("✅ API app bootstrapped successfully");
+}).catch((error) => {
+  console.error("❌ Failed to bootstrap API app", error);
+  // In Vercel, don't exit - let requests handle the error
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
+});
+
+// For local development, start the HTTP server after bootstrap
+if (!process.env.VERCEL) {
+  bootstrapPromise.then(() => {
     server.listen(config.port, () => {
       console.log(`API server listening on port ${config.port}`);
     });
-  }).catch((error) => {
-    console.error("Failed to bootstrap API app", error);
-    process.exit(1);
   });
 }
 
