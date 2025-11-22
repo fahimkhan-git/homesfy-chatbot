@@ -90,10 +90,28 @@ router.get("/:projectId", async (req, res) => {
     const { projectId } = req.params;
     const config = await getWidgetConfig(projectId);
 
+    // If no config found, return default config instead of error
+    if (!config || Object.keys(config).length === 0) {
+      return res.json({
+        projectId,
+        primaryColor: "#6158ff",
+        welcomeMessage: "Hi, I'm Riya from Homesfy 👋\nHow can I help you today?",
+        autoOpenDelayMs: 4000,
+        propertyInfo: {},
+      });
+    }
+
     res.json(config);
   } catch (error) {
     console.error("Failed to fetch widget config", error);
-    res.status(500).json({ message: "Failed to fetch widget config" });
+    // Return default config instead of 500 error
+    res.json({
+      projectId: req.params.projectId,
+      primaryColor: "#6158ff",
+      welcomeMessage: "Hi, I'm Riya from Homesfy 👋\nHow can I help you today?",
+      autoOpenDelayMs: 4000,
+      propertyInfo: {},
+    });
   }
 });
 
