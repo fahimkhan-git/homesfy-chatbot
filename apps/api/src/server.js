@@ -69,8 +69,8 @@ async function bootstrap() {
     : expandAllowedOrigins(config.allowedOrigins);
   const socketOrigin = expandedOrigins.includes("*") ? "*" : expandedOrigins;
 
-  const server = http.createServer(app);
-  const io = new SocketIOServer(server, {
+  server = http.createServer(app);
+  io = new SocketIOServer(server, {
     cors: {
       origin: socketOrigin,
     },
@@ -183,13 +183,31 @@ async function bootstrap() {
   
   checkAIAvailability();
 
-  server.listen(config.port, () => {
-    console.log(`API server listening on port ${config.port}`);
-  });
+  // For Vercel serverless functions, export the app instead of starting a server
+  if (process.env.VERCEL) {
+    // Export app for Vercel serverless functions
+    module.exports = app;
+  } else {
+    // For local development, start the server
+    server.listen(config.port, () => {
+      console.log(`API server listening on port ${config.port}`);
+    });
+  }
 }
 
-bootstrap().catch((error) => {
-  console.error("Failed to start API server", error);
-  process.exit(1);
-});
+// Only bootstrap if not in Vercel environment (Vercel will import the app directly)
+if (!process.env.VERCEL) {
+  bootstrap().catch((error) => {
+    console.error("Failed to start API server", error);
+    process.exit(1);
+  });
+} else {
+  // For Vercel, bootstrap and export app
+  bootstrap().then(() => {
+    console.log("✅ API app ready for Vercel serverless functions");
+  }).catch((error) => {
+    console.error("Failed to bootstrap API app", error);
+    process.exit(1);
+  });
+}
 
