@@ -3,20 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "rewrites": [
-    {
-      "source": "/widget.js",
-      "destination": "/widget.js"
-    },
-    {
-      "source": "/style.css",
-      "destination": "/style.css"
-    },
-    {
-      "source": "/widget.js.map",
-      "destination": "/widget.js.map"
-    }
-  ],
+  "framework": null,
   "headers": [
     {
       "source": "/(.*)",
