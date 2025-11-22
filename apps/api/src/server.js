@@ -62,6 +62,11 @@ const app = express();
 let server;
 let io;
 
+// Initialize basic middleware immediately (before bootstrap)
+// This ensures the app is ready even if bootstrap is still running
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 async function bootstrap() {
   if (config.dataStore === "mongo") {
     try {
@@ -113,9 +118,7 @@ async function bootstrap() {
     })
   );
 
-  // Request size limits - prevent DoS attacks
-  app.use(express.json({ limit: "10mb" })); // Max 10MB JSON payload
-  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  // Request size limits already set above (before bootstrap)
 
   // CORS Configuration - Always allow localhost for development
   const corsOptions = {
