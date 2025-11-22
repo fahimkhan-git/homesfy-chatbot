@@ -67,6 +67,40 @@ let io;
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// CORS Configuration - MUST be before routes for Vercel serverless functions
+// Always allow localhost and common production domains
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Always allow localhost and 127.0.0.1 on any port for development
+    if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+      return callback(null, true);
+    }
+    
+    // Always allow homeesfytestwebsite.com and its subdomains
+    if (origin.includes("homeesfytestwebsite.com")) {
+      return callback(null, true);
+    }
+    
+    // Allow all origins by default (can be restricted via environment variable)
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  exposedHeaders: ["Content-Length", "Content-Type"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// Global rate limiting - applies to all routes
+app.use("/api", apiLimiter);
+
 // Register routes IMMEDIATELY (before bootstrap)
 // This is critical for Vercel serverless functions - routes must be available synchronously
 app.get("/", (_req, res) => {
@@ -156,49 +190,8 @@ async function bootstrap() {
   );
 
   // Request size limits already set above (before bootstrap)
-
-  // CORS Configuration - Always allow localhost and common production domains
-  const corsOptions = {
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) {
-        return callback(null, true);
-      }
-      
-      // Always allow localhost and 127.0.0.1 on any port for development
-      if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
-        return callback(null, true);
-      }
-      
-      // Always allow homeesfytestwebsite.com and its subdomains
-      if (origin.includes("homeesfytestwebsite.com")) {
-        return callback(null, true);
-      }
-      
-      // If "*" is in allowed origins, allow all
-      if (expandedOrigins.includes("*")) {
-        return callback(null, true);
-      }
-      
-      // Check if origin is in allowed list
-      if (expandedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      
-      // Default: reject
-      callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Content-Length", "Content-Type"],
-  };
-
-  app.use(cors(corsOptions));
-  app.options("*", cors(corsOptions));
-
-  // Global rate limiting - applies to all routes
-  app.use("/api", apiLimiter);
+  // CORS already configured above (before routes)
+  // Rate limiting already configured above (before routes)
 
   app.use((req, res, next) => {
     req.io = io;
